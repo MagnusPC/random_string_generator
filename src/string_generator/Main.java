@@ -1,7 +1,6 @@
 package string_generator;
 
-import java.nio.*;
-import java.nio.charset.*;
+import java.nio.charset.Charset;
 
 public class Main {
 
