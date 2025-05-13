@@ -1,36 +1,45 @@
 package string_generator;
 
-import java.math.MathContext;
 import java.nio.charset.Charset;
-import java.util.HashMap;
-import java.util.Map;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Random;
 import java.util.stream.IntStream;
 
 
-public class String_generator {
+public class String_generator implements IString_generator {
 
-	//TODO make interface
 	//TODO make accessor method
 	//TODO make random string generator method
 		//TODO refactor to take regex and length as input parameter
 		//TODO possibly convert strings to binary or other to increase generation time when comparing created str with new str
-	
-	public String[] generateStrings(String strToConvert, String charsetAlias) {
+	public List<String> generateStrings(String strToConvert, String charsetAlias, int strCount) {
 		//currently only generates from an inputstring and not a regex, TODO generate regex from inputstring?
 		int strLen = strToConvert.length();
-		
-//		Map<String, String> strMap = new HashMap<>(); 
-		//no reason to return a map as im only interested in the string values and not the decimal keys
-		String[] strArr;
 
 		//get the bytes of each char in inputstring, they will be used to insert chars into a randomized string		
 		byte[] byteNums = getBytes(strToConvert, charsetAlias); //NB running .decode will make the chars compareable with rnd array
 		
 		//we need to generate an array of random integers, corresponding with the unicode decimals
-		//TODO make rnd into method
-		IntStream rndIntStream = new Random(strLen).ints(strLen); 
-		//TODO! NB we want to use the int array to assert where the chars from strarr must be placed...
+		
+		//no reason to return a map as im only interested in the string values and not the decimal keys
+		List<String> strList = new ArrayList<>(strCount);//would rather save as "String[] strArr = {};" but alas
+		
+		//TODO make random indexer below into a method
+		for (int i = 0; i < strCount; i++) {
+			//to know where to place the chars we need a sort of pointer for each char, generated here
+			int rndOriginIncl = 97; 
+			int rndBoundExcl = 123; //temp hardcoding to only choose between lowercase a-z
+			IntStream rndIntStream = new Random().ints(rndOriginIncl, rndBoundExcl); //.ints(32, strLen + 1);
+			
+			//Review
+			System.out.print("IntStream w/o toStr #" + i + " " + rndIntStream.hashCode());
+			System.out.print(" | IntStream with toStr #" + i + " " + rndIntStream.toString().hashCode() + "\n");
+			
+			//place the pointers into the string list - TODO dont do tostring, instead return a temp list with intstreams
+			strList.add(rndIntStream.toString());
+			//strArr[i].codePoints() //nb returns intstream of codepoints for char at index
+		}
 		
 		//TODO either add all int to an int array or compare as is with the bytenums array? 
 		for (int i = 0; i < strToConvert.length(); i++) {
@@ -46,7 +55,7 @@ public class String_generator {
 
 		
 		
-		return null;// strArr;
+		return strList;// strArr;
 	}
 	
 	
@@ -65,10 +74,4 @@ public class String_generator {
 
 		return bArr;
 	}
-	
-//	protected void Generator() {
-//		//initialize the random generator
-//		IntStream rng = RandomGenerator.getDefault().ints(); //creates a stream of count/size/length 10
-//	}
-	
 }
