@@ -96,8 +96,19 @@ public class String_generator implements IString_generator<String, List<String>,
 
 	@Override
 	public String interpretUserInput(String input) {
+		String rgx = input.substring(0, input.indexOf(","));
+		String cset = input.substring(input.indexOf(","), input.lastIndexOf(","));
+		int amount = 0;
+		try {
+			amount = Integer.parseInt(input.substring(input.lastIndexOf(","), input.length()));
+		}
+		catch(NumberFormatException nfe) {
+			amount = 3;
+			System.out.println(Integer.parseInt(input.substring(input.lastIndexOf(",")+1, input.length())) + " returned from parsing int, of type ");
+			System.out.println(nfe.getMessage() + "\nSetting default amount: " + amount);
+		}
 		//TODO should be handled in main instead
-		return "";
+		return rgx + cset + amount;
 	}
 
 

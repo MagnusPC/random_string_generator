@@ -24,6 +24,11 @@ public class Main {
 		}
 		System.out.println();
 		System.out.println(sg.generateStringsAlt(str, "US-ASCII", 10));
+		
+		// ^ old, new below
+		
+		String iui = sg.interpretUserInput("abc,US-ASCII,10");
+		System.out.println(iui);
 	}
 
 }
