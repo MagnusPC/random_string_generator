@@ -2,12 +2,13 @@ package string_generator;
 
 import java.nio.charset.Charset;
 import java.util.ArrayList;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Random;
 import java.util.stream.IntStream;
 
 
-public class String_generator implements IString_generator {
+public class String_generator implements IString_generator<String, List<String>, Integer> {
 
 	//TODO make accessor method
 	//TODO make random string generator method
@@ -31,10 +32,6 @@ public class String_generator implements IString_generator {
 			int rndOriginIncl = 97; 
 			int rndBoundExcl = 123; //temp hardcoding to only choose between lowercase a-z
 			IntStream rndIntStream = new Random().ints(rndOriginIncl, rndBoundExcl); //.ints(32, strLen + 1);
-			
-			//Review
-			System.out.print("IntStream w/o toStr #" + i + " " + rndIntStream.hashCode());
-			System.out.print(" | IntStream with toStr #" + i + " " + rndIntStream.toString().hashCode() + "\n");
 			
 			//place the pointers into the string list - TODO dont do tostring, instead return a temp list with intstreams
 			strList.add(rndIntStream.toString());
@@ -73,5 +70,84 @@ public class String_generator implements IString_generator {
 		byte[] bArr = strToConvert.getBytes(cs);
 
 		return bArr;
+	}
+	
+	public List<String> generateStringsAlt(String strToConvert, String charsetAlias, int strCount) {
+	    int strLen = strToConvert.length();
+	    List<String> strList = new ArrayList<>(strCount);
+	    Random random = new Random(); // Create just one Random instance
+	    
+	    for (int i = 0; i < strCount; i++) {
+	        StringBuilder sb = new StringBuilder(strLen);
+	        
+	        // Generate a random string with same length as input
+	        for (int j = 0; j < strLen; j++) {
+	            // Generate random lowercase letter (a-z)
+	            char randomChar = (char) (random.nextInt(26) + 'a');
+	            sb.append(randomChar);
+	        }
+	        
+	        strList.add(sb.toString());
+	    }
+	    
+	    return strList;
+	}
+
+
+	@Override
+	public String interpretUserInput(String input) {
+		//TODO should be handled in main instead
+		return "";
+	}
+
+
+	@Override
+	public String interpretRegex(String input) {
+		if(input.substring(0, 1) != "[" & input.substring(input.length() - 1, input.length()) != "]") { //may be -2 and -1
+			System.out.println("Error in stating bounds for regex.");
+		}
+		for (int i = 0; i < input.length(); i++) {
+			if(input.substring(i, i+1) == "-") {
+				//TODO method call?
+			}
+		}
+
+		return null;
+	}
+
+	@Override
+	public String handleMetaCharacters(String regex) {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
+
+	@Override
+	public String handleQuantifiers(String regex) {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
+
+	@Override
+	public String handleCharacterClasses(String charset) {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
+
+	@Override
+	public String generateStrings(String regex, String charset, Integer amount) {
+		String rgx = interpretRegex(regex);
+		
+		for (int i = 0; i < amount; i++) {
+			for (int j = 0; j < rgx.length(); j++) {
+				//TODO dont actually use .length() instead get the quantifier
+				//pseudo: generate random string
+			}
+			//pseudo: generat another rnd string until i = amount
+		}
+		
+		return rgx;
 	}
 }

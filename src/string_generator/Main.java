@@ -22,6 +22,8 @@ public class Main {
 		for (int i = 0; i < rstr.size(); i++) {
 			System.out.print(rstr.get(i).hashCode() + " ");
 		}
+		System.out.println();
+		System.out.println(sg.generateStringsAlt(str, "US-ASCII", 10));
 	}
 
 }
