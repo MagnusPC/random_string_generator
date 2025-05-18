@@ -97,23 +97,63 @@ public class String_generator implements IString_generator<String, List<String>,
 	@Override
 	public String interpretUserInput(String input) {
 		String rgx = input.substring(0, input.indexOf(","));
-		String cset = input.substring(input.indexOf(","), input.lastIndexOf(","));
+		String cset = input.substring(input.indexOf(",")+1, input.lastIndexOf(","));
 		int amount = 0;
 		try {
-			amount = Integer.parseInt(input.substring(input.lastIndexOf(","), input.length()));
+			amount = Integer.parseInt(input.substring(input.lastIndexOf(",")+1, input.length()));
 		}
 		catch(NumberFormatException nfe) {
 			amount = 3;
-			System.out.println(Integer.parseInt(input.substring(input.lastIndexOf(",")+1, input.length())) + " returned from parsing int, of type ");
-			System.out.println(nfe.getMessage() + "\nSetting default amount: " + amount);
+			System.out.println("exception caught, " + nfe + "\nsetting default amount: " + amount);
 		}
 		//TODO should be handled in main instead
-		return rgx + cset + amount;
+		return rgx + " " + cset + " " + amount;
 	}
 
 
 	@Override
 	public String interpretRegex(String input) {
+		//First we break the input string into portions
+		List<Character> rgxChars = new ArrayList<>(); //TODO can it be simplified - ved brug af list of chars får vi problemer med escape sequences
+		for (int i = 0; i < input.length(); i++) {
+			rgxChars.add(input.charAt(i));
+		}
+		
+		//Alt.:
+		//Instead of just breaking input into smaller pieces we simply just find the ranges, meta chars and so on, and figure the pattern out as the last thing
+		List<String> ranges = new ArrayList<>();
+		for(int i = 0; i < input.length(); i++) {
+			//prep switchcase
+			char rgxC = input.charAt(i);
+			
+			switch (rgxC) {
+			case '[':
+				//get the range
+				int rIdx = input.indexOf(']', i);
+//				TODO implement finding matches in beginning or end of string
+				String range = input.substring(i, rIdx);
+				ranges.add(range);
+			case '-': 
+				
+			case '^':
+				//TODO decide whether or not to only handle outside of ranges
+				//e.g. if input.charAt(0) = ^, then anything after would be placed at start of word
+				//but if case '[' of index 0 is followed by ^ of index 1, then the following chars would have to be excluded
+				
+			case '\\':
+				
+			case '+':
+			
+			case '{': 
+				
+			default : 
+				//any other chars, just continue the for-loop
+			}
+		}
+		
+		//handle meta chars inside of ranges
+//		for range in ranges {	}
+		
 		if(input.substring(0, 1) != "[" & input.substring(input.length() - 1, input.length()) != "]") { //may be -2 and -1
 			System.out.println("Error in stating bounds for regex.");
 		}
@@ -150,6 +190,7 @@ public class String_generator implements IString_generator<String, List<String>,
 	@Override
 	public String generateStrings(String regex, String charset, Integer amount) {
 		String rgx = interpretRegex(regex);
+		StringBuilder sb = new StringBuilder(); //with charsequenece and/or capacity as param inputs
 		
 		for (int i = 0; i < amount; i++) {
 			for (int j = 0; j < rgx.length(); j++) {

@@ -29,6 +29,9 @@ public class Main {
 		
 		String iui = sg.interpretUserInput("abc,US-ASCII,10");
 		System.out.println(iui);
+		
+		String ir = sg.interpretRegex("[a-zA-Z^mnoMNO]");
+		System.out.println(ir);
 	}
 
 }
