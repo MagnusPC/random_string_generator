@@ -145,14 +145,14 @@ public class String_generator implements IString_generator<String, List<String>,
 					if (cl.indexOf(rStart) == -1) {
 						rsIdx = sl.indexOf(rStart); //TODO must be a better way than an if-else, maybe by converting from lowercase to uppercase and vice versa
 						reIdx = sl.indexOf(rEnd);
-						letterRange.concat(sl.substring(rsIdx, reIdx));
+						letterRange = letterRange.concat(sl.substring(rsIdx, reIdx+1));
 					} else {
 						rsIdx = cl.indexOf(rStart);
 						reIdx = cl.indexOf(rEnd);
-						letterRange.concat(cl.substring(rsIdx, reIdx));
+						letterRange = letterRange.concat(cl.substring(rsIdx, reIdx+1));
 					}
 					ranges.add(letterRange); //dumb way to do it, will have to abandon switch-case and modify "ranges" entries (asuming they are {'[a-zABC]', ...} or similar)
-					System.out.println("letterRange '" + letterRange + "' was added to 'ranges'");
+					System.out.println("letterRange '" + letterRange + "' was added to 'ranges', with rStart, rEnd, rsIdx and reIdx being:\t" + rStart + "," + rEnd + "," + rsIdx + "," + reIdx);
 					
 				} else {
 					System.out.println("Error in switch-case for char: " + rgxC);
@@ -178,16 +178,7 @@ public class String_generator implements IString_generator<String, List<String>,
 		}
 		
 		//handle meta chars inside of ranges
-//		for range in ranges {	}
-		
-		if(input.substring(0, 1) != "[" & input.substring(input.length() - 1, input.length()) != "]") { //may be -2 and -1
-//			System.out.println("Error in stating bounds for regex.");
-		}
-		for (int i = 0; i < input.length(); i++) {
-			if(input.substring(i, i+1) == "-") {
-				//TODO method call?
-			}
-		}
+//		for (int r = 0; r < ranges.size(); r++) {		}
 
 		return ranges.toString();
 	}
