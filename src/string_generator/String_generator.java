@@ -133,13 +133,39 @@ public class String_generator implements IString_generator<String, List<String>,
 //				TODO implement finding matches in beginning or end of string
 				String range = input.substring(i, rIdx);
 				ranges.add(range);
+				break;
 			case '-': 
-				
+				if (i > 0) {
+					//currently only working with the english alphabet, TODO should be generalized
+					String cl = "ABCDEFGHIJKLMNOPQRSTUVWXYZ", sl = cl.toLowerCase(); // extend with numbers
+					char rStart = input.charAt(i-1);
+					char rEnd = input.charAt(i+1);
+					int rsIdx, reIdx;
+					String letterRange = "";
+					if (cl.indexOf(rStart) == -1) {
+						rsIdx = sl.indexOf(rStart); //TODO must be a better way than an if-else, maybe by converting from lowercase to uppercase and vice versa
+						reIdx = sl.indexOf(rEnd);
+						letterRange.concat(sl.substring(rsIdx, reIdx));
+					} else {
+						rsIdx = cl.indexOf(rStart);
+						reIdx = cl.indexOf(rEnd);
+						letterRange.concat(cl.substring(rsIdx, reIdx));
+					}
+					ranges.add(letterRange); //dumb way to do it, will have to abandon switch-case and modify "ranges" entries (asuming they are {'[a-zABC]', ...} or similar)
+					System.out.println("letterRange '" + letterRange + "' was added to 'ranges'");
+					
+				} else {
+					System.out.println("Error in switch-case for char: " + rgxC);
+				}
 			case '^':
 				//TODO decide whether or not to only handle outside of ranges
 				//e.g. if input.charAt(0) = ^, then anything after would be placed at start of word
 				//but if case '[' of index 0 is followed by ^ of index 1, then the following chars would have to be excluded
-				
+				if (input.charAt(i+1) == '[') {
+					//beginning of input
+				} else {
+					//assume exclusion of chars
+				}
 			case '\\':
 				
 			case '+':
@@ -155,7 +181,7 @@ public class String_generator implements IString_generator<String, List<String>,
 //		for range in ranges {	}
 		
 		if(input.substring(0, 1) != "[" & input.substring(input.length() - 1, input.length()) != "]") { //may be -2 and -1
-			System.out.println("Error in stating bounds for regex.");
+//			System.out.println("Error in stating bounds for regex.");
 		}
 		for (int i = 0; i < input.length(); i++) {
 			if(input.substring(i, i+1) == "-") {
@@ -163,7 +189,7 @@ public class String_generator implements IString_generator<String, List<String>,
 			}
 		}
 
-		return null;
+		return ranges.toString();
 	}
 
 	@Override

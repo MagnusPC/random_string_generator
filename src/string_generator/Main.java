@@ -28,10 +28,12 @@ public class Main {
 		// ^ old, new below
 		
 		String iui = sg.interpretUserInput("abc,US-ASCII,10");
-		System.out.println(iui);
+		System.out.println("InterpretUserInput: " + iui);
 		
 		String ir = sg.interpretRegex("[a-zA-Z^mnoMNO]");
-		System.out.println(ir);
+		System.out.println("InterpretRegex: " + ir);
+		
+		System.out.println("-----|" + "ABC".indexOf("a"));
 	}
 
 }
