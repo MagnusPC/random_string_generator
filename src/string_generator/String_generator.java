@@ -10,10 +10,7 @@ import java.util.stream.IntStream;
 
 public class String_generator implements IString_generator<String, List<String>, Integer> {
 
-	//TODO make accessor method
-	//TODO make random string generator method
-		//TODO refactor to take regex and length as input parameter
-		//TODO possibly convert strings to binary or other to increase generation time when comparing created str with new str
+	//TODO possibly convert strings to binary or other to increase generation time when comparing created str with new str
 	public List<String> generateStrings(String strToConvert, String charsetAlias, int strCount) {
 		//currently only generates from an inputstring and not a regex, TODO generate regex from inputstring?
 		int strLen = strToConvert.length();
@@ -37,20 +34,6 @@ public class String_generator implements IString_generator<String, List<String>,
 			strList.add(rndIntStream.toString());
 			//strArr[i].codePoints() //nb returns intstream of codepoints for char at index
 		}
-		
-		//TODO either add all int to an int array or compare as is with the bytenums array? 
-		for (int i = 0; i < strToConvert.length(); i++) {
-			
-		}
-		
-		/*TODO main func
-		 * we want to input a string, e.g. through console
-		 * the string will be converted to bytes, so we can compare it with a random number generators output
-		 * 
-		 * 
-		 */
-
-		
 		
 		return strList;// strArr;
 	}
@@ -106,20 +89,13 @@ public class String_generator implements IString_generator<String, List<String>,
 			amount = 3;
 			System.out.println("exception caught, " + nfe + "\nsetting default amount: " + amount);
 		}
-		//TODO should be handled in main instead
+		//TODO should be handled in main instead - what did i mean by this
 		return rgx + " " + cset + " " + amount;
 	}
 
 
 	@Override
 	public String interpretRegex(String input) {
-		//First we break the input string into portions
-		List<Character> rgxChars = new ArrayList<>(); //TODO can it be simplified - ved brug af list of chars får vi problemer med escape sequences
-		for (int i = 0; i < input.length(); i++) {
-			rgxChars.add(input.charAt(i));
-		}
-		
-		//Alt.:
 		//Instead of just breaking input into smaller pieces we simply just find the ranges, meta chars and so on, and figure the pattern out as the last thing
 		List<String> ranges = new ArrayList<>();
 		for(int i = 0; i < input.length(); i++) {
@@ -127,36 +103,31 @@ public class String_generator implements IString_generator<String, List<String>,
 			char rgxC = input.charAt(i);
 			
 			switch (rgxC) {
+			/*
+			 * Get a range 
+			 * we will ignore end square bracket as it is included here
+			 */
 			case '[':
-				//get the range
-				int rIdx = input.indexOf(']', i);
-//				TODO implement finding matches in beginning or end of string
-				String range = input.substring(i, rIdx);
-				ranges.add(range);
+				String rangeSB = handleSquareBracket(input, i);
+				ranges.add(rangeSB);
 				break;
+			/*
+			 * Get a range
+			 */
 			case '-': 
 				if (i > 0) {
-					//currently only working with the english alphabet, TODO should be generalized
-					String cl = "ABCDEFGHIJKLMNOPQRSTUVWXYZ", sl = cl.toLowerCase(); // extend with numbers
-					char rStart = input.charAt(i-1);
-					char rEnd = input.charAt(i+1);
-					int rsIdx, reIdx;
-					String letterRange = "";
-					if (cl.indexOf(rStart) == -1) {
-						rsIdx = sl.indexOf(rStart); //TODO must be a better way than an if-else, maybe by converting from lowercase to uppercase and vice versa
-						reIdx = sl.indexOf(rEnd);
-						letterRange = letterRange.concat(sl.substring(rsIdx, reIdx+1));
-					} else {
-						rsIdx = cl.indexOf(rStart);
-						reIdx = cl.indexOf(rEnd);
-						letterRange = letterRange.concat(cl.substring(rsIdx, reIdx+1));
-					}
-					ranges.add(letterRange); //dumb way to do it, will have to abandon switch-case and modify "ranges" entries (asuming they are {'[a-zABC]', ...} or similar)
-					System.out.println("letterRange '" + letterRange + "' was added to 'ranges', with rStart, rEnd, rsIdx and reIdx being:\t" + rStart + "," + rEnd + "," + rsIdx + "," + reIdx);
+					String rangeDash = handleDash(input, i);
+					ranges.add(rangeDash);
+					System.out.println("rangeDash '" + rangeDash + "' was added to 'ranges'");
 					
-				} else {
+				} 
+				else {
 					System.out.println("Error in switch-case for char: " + rgxC);
 				}
+			/*
+			 * Get exclusion
+			 * Alt. assert start of regular expression
+			 */
 			case '^':
 				//TODO decide whether or not to only handle outside of ranges
 				//e.g. if input.charAt(0) = ^, then anything after would be placed at start of word
@@ -177,12 +148,41 @@ public class String_generator implements IString_generator<String, List<String>,
 			}
 		}
 		
-		//handle meta chars inside of ranges
-//		for (int r = 0; r < ranges.size(); r++) {		}
-
 		return ranges.toString();
 	}
 
+	private String handleSquareBracket(String input, int inputIdx) {
+		int endIdx = input.indexOf(']', inputIdx);
+		String range = input.substring(inputIdx, endIdx);
+		
+		return range;
+	}
+	
+	private String handleDash(String input, int inputIdx) {
+		//currently only working with the english alphabet, TODO should be generalized
+		String cl = "ABCDEFGHIJKLMNOPQRSTUVWXYZ", sl = cl.toLowerCase(); // extend with numbers
+		
+		char rStart = input.charAt(inputIdx-1);
+		char rEnd = input.charAt(inputIdx+1);
+		int rsIdx, reIdx;
+
+		String letterRange = "";
+		
+		if (cl.indexOf(rStart) == -1) {
+			rsIdx = sl.indexOf(rStart); //TODO must be a better way than an if-else, maybe by converting from lowercase to uppercase and vice versa
+			reIdx = sl.indexOf(rEnd) + 1;
+			
+			letterRange = letterRange.concat(sl.substring(rsIdx, reIdx));
+		} else {
+			rsIdx = cl.indexOf(rStart);
+			reIdx = cl.indexOf(rEnd) + 1;
+			
+			letterRange = letterRange.concat(cl.substring(rsIdx, reIdx));
+		}
+		
+		return letterRange;
+	}
+	
 	@Override
 	public String handleMetaCharacters(String regex) {
 		// TODO Auto-generated method stub

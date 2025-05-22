@@ -30,7 +30,7 @@ public class Main {
 		String iui = sg.interpretUserInput("abc,US-ASCII,10");
 		System.out.println("InterpretUserInput: " + iui);
 		
-		String ir = sg.interpretRegex("[a-zA-Z^mnoMNO]");
+		String ir = sg.interpretRegex("[a-kG-M^mnoMNO]");
 		System.out.println("InterpretRegex: " + ir);
 		
 		System.out.println("-----|" + "ABC".indexOf("a"));
