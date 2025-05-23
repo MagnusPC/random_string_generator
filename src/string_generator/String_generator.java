@@ -9,7 +9,7 @@ import java.util.Random;
 public class String_generator implements IString_generator<String, List<String>, Integer>, Runnable {
 
 	@Override
-	public List<String> generateStrings(String strToConvert, String charsetAlias, int strCount) {
+	public List<String> generateStringList(String strToConvert, String charsetAlias, int strCount) {
 	    int strLen = strToConvert.length();
 	    List<String> strList = new ArrayList<>(strCount);
 	    Random random = new Random(); // Create just one Random instance
@@ -30,13 +30,41 @@ public class String_generator implements IString_generator<String, List<String>,
 	    return strList;
 	}
 	
-
+	
+	/*
+	 * Probably finally the actual entrance method
+	 */
 	@Override
-	public String generateStrings(String regex, String charset, Integer amount) {
-//		String rgx = interpretRegex(regex);
+	public List<String> generateListOfStrings(String input, String charsetAlias, Integer strLength, Integer strCount){
+		//Interpret the inputs
+		String convertedRgx = interpretRegex(input);
+		Charset cSet = getCharsetFromInput(charsetAlias);
+		int len = strLength; //revise
+		
+		//Generate the strings and add to list
+		List<String> rndStrings = new ArrayList<>();
+		
+		for (int i = 0; i < strCount; i++) {
+			String genString = generateStrings(convertedRgx, cSet, len);
+			rndStrings.add(genString);
+		}
+		
+		return rndStrings;
+		
+	}
+
+	//may be public for singular str generation purposes?
+	private String generateStrings(String regex, Charset charset, int lenOfStr) {
+		//TODO implement
 		return null;
 	}
 
+	
+	private Charset getCharsetFromInput(String charsetAlias) {
+		return Charset.forName(charsetAlias); //TODO refactor
+	}
+
+	
 	protected byte[] getBytes(String strToConvert, String charsetAlias) {
 		// Set requested charset
 		Charset cs;
@@ -50,23 +78,32 @@ public class String_generator implements IString_generator<String, List<String>,
 		// Return input string as byte array
 		byte[] bArr = strToConvert.getBytes(cs);
 
-		return bArr;
+		return bArr; //TODO revise, probs build from scratch
 	}
-
+	
+	
 	@Override
 	public String interpretUserInput(String input) {
-		String rgx = input.substring(0, input.indexOf(","));
-		String cset = input.substring(input.indexOf(",")+1, input.lastIndexOf(","));
-		int amount = 0;
+		String retStr = "^[a-zA-Z]$"; //hardcoded default
+		int amount = 3;
+		
 		try {
+			
+			String rgx = input.substring(0, input.indexOf(","));
+			String cset = input.substring(input.indexOf(",")+1, input.lastIndexOf(","));
+			
 			amount = Integer.parseInt(input.substring(input.lastIndexOf(",")+1, input.length()));
+			retStr = rgx + " " + cset + " " + amount;
+			//TODO call the generateListOfStrings method
 		}
 		catch(NumberFormatException nfe) {
-			amount = 3;
-			System.out.println("exception caught, " + nfe + "\nsetting default amount: " + amount);
+			System.out.println("exception caught, " + nfe + ", setting default amount: " + amount);
 		}
-		//TODO should be handled in main instead - what did i mean by this
-		return rgx + " " + cset + " " + amount;
+		catch(StringIndexOutOfBoundsException sioob) {
+			System.out.println("exception caught, " + sioob + ", setting default regex: " + retStr);
+		}
+		
+		return retStr;
 	}
 
 
@@ -92,6 +129,7 @@ public class String_generator implements IString_generator<String, List<String>,
 			 */
 			case '-': 
 				if (i > 0 && !(input.charAt(i-1) == '\\')) {
+					//TODO should also not run if input is say '[abc-]'
 					String rangeDash = handleDash(input, i);
 					ranges.add(rangeDash);
 				} 
@@ -136,6 +174,7 @@ public class String_generator implements IString_generator<String, List<String>,
 		String range = input.substring(inputIdx, endIdx);
 		
 //		TODO add check to see if range contains dashes, call handleDash
+		//if !hasDash, run code, else, call handledash
 		
 		return range;
 	}
@@ -165,21 +204,18 @@ public class String_generator implements IString_generator<String, List<String>,
 		return letterRange;
 	}
 	
-	@Override
 	public String handleMetaCharacters(String regex) {
 		// TODO Auto-generated method stub
 		return null;
 	}
 
 
-	@Override
 	public String handleQuantifiers(String regex) {
 		// TODO Auto-generated method stub
 		return null;
 	}
 
 
-	@Override
 	public String handleCharacterClasses(String charset) {
 		// TODO Auto-generated method stub
 		return null;
@@ -197,4 +233,5 @@ public class String_generator implements IString_generator<String, List<String>,
 		 */
 		
 	}
+
 }
