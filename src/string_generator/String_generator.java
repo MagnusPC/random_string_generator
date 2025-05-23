@@ -2,60 +2,14 @@ package string_generator;
 
 import java.nio.charset.Charset;
 import java.util.ArrayList;
-import java.util.Iterator;
 import java.util.List;
 import java.util.Random;
-import java.util.stream.IntStream;
 
 
-public class String_generator implements IString_generator<String, List<String>, Integer> {
+public class String_generator implements IString_generator<String, List<String>, Integer>, Runnable {
 
-	//TODO possibly convert strings to binary or other to increase generation time when comparing created str with new str
+	@Override
 	public List<String> generateStrings(String strToConvert, String charsetAlias, int strCount) {
-		//currently only generates from an inputstring and not a regex, TODO generate regex from inputstring?
-		int strLen = strToConvert.length();
-
-		//get the bytes of each char in inputstring, they will be used to insert chars into a randomized string		
-		byte[] byteNums = getBytes(strToConvert, charsetAlias); //NB running .decode will make the chars compareable with rnd array
-		
-		//we need to generate an array of random integers, corresponding with the unicode decimals
-		
-		//no reason to return a map as im only interested in the string values and not the decimal keys
-		List<String> strList = new ArrayList<>(strCount);//would rather save as "String[] strArr = {};" but alas
-		
-		//TODO make random indexer below into a method
-		for (int i = 0; i < strCount; i++) {
-			//to know where to place the chars we need a sort of pointer for each char, generated here
-			int rndOriginIncl = 97; 
-			int rndBoundExcl = 123; //temp hardcoding to only choose between lowercase a-z
-			IntStream rndIntStream = new Random().ints(rndOriginIncl, rndBoundExcl); //.ints(32, strLen + 1);
-			
-			//place the pointers into the string list - TODO dont do tostring, instead return a temp list with intstreams
-			strList.add(rndIntStream.toString());
-			//strArr[i].codePoints() //nb returns intstream of codepoints for char at index
-		}
-		
-		return strList;// strArr;
-	}
-	
-	
-	protected byte[] getBytes(String strToConvert, String charsetAlias) {
-		// Set requested charset
-		Charset cs;
-		try {
-			cs = Charset.forName(charsetAlias);
-		} catch (Exception e) {
-			System.out.println("Exception occured: " + e);
-			cs = Charset.defaultCharset();
-		}
-		
-		// Return input string as byte array
-		byte[] bArr = strToConvert.getBytes(cs);
-
-		return bArr;
-	}
-	
-	public List<String> generateStringsAlt(String strToConvert, String charsetAlias, int strCount) {
 	    int strLen = strToConvert.length();
 	    List<String> strList = new ArrayList<>(strCount);
 	    Random random = new Random(); // Create just one Random instance
@@ -75,7 +29,29 @@ public class String_generator implements IString_generator<String, List<String>,
 	    
 	    return strList;
 	}
+	
 
+	@Override
+	public String generateStrings(String regex, String charset, Integer amount) {
+//		String rgx = interpretRegex(regex);
+		return null;
+	}
+
+	protected byte[] getBytes(String strToConvert, String charsetAlias) {
+		// Set requested charset
+		Charset cs;
+		try {
+			cs = Charset.forName(charsetAlias);
+		} catch (Exception e) {
+			System.out.println("Exception occured: " + e);
+			cs = Charset.defaultCharset();
+		}
+		
+		// Return input string as byte array
+		byte[] bArr = strToConvert.getBytes(cs);
+
+		return bArr;
+	}
 
 	@Override
 	public String interpretUserInput(String input) {
@@ -115,15 +91,14 @@ public class String_generator implements IString_generator<String, List<String>,
 			 * Get a range
 			 */
 			case '-': 
-				if (i > 0) {
+				if (i > 0 && !(input.charAt(i-1) == '\\')) {
 					String rangeDash = handleDash(input, i);
 					ranges.add(rangeDash);
-					System.out.println("rangeDash '" + rangeDash + "' was added to 'ranges'");
-					
 				} 
 				else {
 					System.out.println("Error in switch-case for char: " + rgxC);
 				}
+				break;
 			/*
 			 * Get exclusion
 			 * Alt. assert start of regular expression
@@ -131,18 +106,23 @@ public class String_generator implements IString_generator<String, List<String>,
 			case '^':
 				//TODO decide whether or not to only handle outside of ranges
 				//e.g. if input.charAt(0) = ^, then anything after would be placed at start of word
-				//but if case '[' of index 0 is followed by ^ of index 1, then the following chars would have to be excluded
+				//but if '[' is followed by '^', then the following chars until ']' would have to be excluded
 				if (input.charAt(i+1) == '[') {
 					//beginning of input
 				} else {
 					//assume exclusion of chars
 				}
+				break;
+			/*
+			 * Handle backslashes
+			 * May be a whole switch case in itself
+			 */
 			case '\\':
-				
+				break;
 			case '+':
-			
+				break;
 			case '{': 
-				
+				break;
 			default : 
 				//any other chars, just continue the for-loop
 			}
@@ -154,6 +134,8 @@ public class String_generator implements IString_generator<String, List<String>,
 	private String handleSquareBracket(String input, int inputIdx) {
 		int endIdx = input.indexOf(']', inputIdx);
 		String range = input.substring(inputIdx, endIdx);
+		
+//		TODO add check to see if range contains dashes, call handleDash
 		
 		return range;
 	}
@@ -203,20 +185,16 @@ public class String_generator implements IString_generator<String, List<String>,
 		return null;
 	}
 
-
+	
 	@Override
-	public String generateStrings(String regex, String charset, Integer amount) {
-		String rgx = interpretRegex(regex);
-		StringBuilder sb = new StringBuilder(); //with charsequenece and/or capacity as param inputs
+	public void run() {
+		/*
+		 * Would be simplest to have one point of entry
+		 * Meaning a generateStrings method should assert whether the input is a console input or external method call
+		 * Which then would call a method to interpret the input which in turn, as best as possible, converts input to regex
+		 * 
+		 * Implement a divide an conquer esque approach and use threading for all handleXYZ methods
+		 */
 		
-		for (int i = 0; i < amount; i++) {
-			for (int j = 0; j < rgx.length(); j++) {
-				//TODO dont actually use .length() instead get the quantifier
-				//pseudo: generate random string
-			}
-			//pseudo: generat another rnd string until i = amount
-		}
-		
-		return rgx;
 	}
 }
